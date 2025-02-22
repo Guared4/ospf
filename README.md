@@ -140,7 +140,7 @@ Playbook'и отработал без ошибок
    
 
 #### 2.2. Проверяю, что OSPF поднялся и работает корректно    
-На router1 проверя таблицу маршрутизции OSPF   
+На router1 проверяю таблицу маршрутизции OSPF   
 
 ```shell
 root@router1:~# vtysh
@@ -219,7 +219,7 @@ router1(config-if)# no shutdown
 Вывод команды traceroute показал, что OSPF отработал и трафик прошёл через router2   
 
 ## 3. Настройка ассиметричного роутинга   
-#### 3.1. Для проверки асимметричного роутинга, необходимо сделать "дорогим" интерфейс eth1 на router1 - cost 1000. Таким образом, маршруты до других роутеров, в том числе router2 - будут менее приоритетными через данный интерфейс (чем меньше cost - тем приоритетней маршрут). Чтобы это проверить необходимо в файле defaults/main.yml изменить значение переменной symmetric_routing с empty на false. После этого запустить playbook с указанием тега - setup_ospf. В конфигурацию серверов будут внесены изменения, чтобы разрешить ассиметричный трафик - sysctl net.ipv4.conf.all.rp_filter=0   
+#### 3.1. Для проверки асимметричного роутинга, необходимо сделать "дорогим" интерфейс enp0s8 на router1 - cost 1000. Таким образом, маршруты до других роутеров, в том числе router2 - будут менее приоритетными через данный интерфейс (чем меньше cost - тем приоритетней маршрут). Чтобы это проверить необходимо в файле defaults/main.yml изменить значение переменной symmetric_routing с empty на false. После этого запустить playbook с указанием тега - setup_ospf. В конфигурацию серверов будут внесены изменения, чтобы разрешить ассиметричный трафик - sysctl net.ipv4.conf.all.rp_filter=0   
 
 ```shell
 root@ansible:/home/vagrant/ansible# ansible-playbook ospf.yml -t setup_ospf
@@ -246,7 +246,7 @@ router1                    : ok=3    changed=2    unreachable=0    failed=0    s
 router2                    : ok=3    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 router3                    : ok=3    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 ```   
-Playbook'и отработали без ошибок   
+Playbook'и отработал без ошибок   
 
 Перехожу на router1   
 ```shell
@@ -331,7 +331,7 @@ PING 192.168.20.1 (192.168.20.1) from 192.168.10.1 : 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.667/0.690/0.722/0.023 ms
 ```    
 #### 3.3. Теперь на router2 запускаю tcpdump, который будет смотреть трафик на enp0s8 и enp0s9   
-Чтобы убедиться, что асимметричный маршрутинг работает, нужно запустить tcpdump на обоих интерфейсах router2 (enp0s8 и enp0s9)   
+Чтобы убедиться, что асимметричный роутинг работает, нужно запустить tcpdump на обоих интерфейсах router2 (enp0s8 и enp0s9)   
 При этом также запустить ping с router1 до сети на router2    
 ```shell
 root@router1:~# ping 192.168.20.1
@@ -393,9 +393,8 @@ listening on enp0s9, link-type EN10MB (Ethernet), capture size 262144 bytes
 Входящие пакеты (ICMP request) на enp0s9    
 
 ### 4. Настройка симметичного роутинга   
-Для того, чтобы сделать роутинг симметричным, необходимо выровнять cost на direct-link между router1 и router2. То есть на router2 также на интерфейсе enp0s8 выставить cost 1000. Для этого, необходимо в файле main.yml изменить значение переменной symmetric_routing с false на true. После этого запустим наш playbook, но с указание только тега - setup_ospf
+Для того, чтобы сделать роутинг симметричным, необходимо выровнять cost на direct-link между router1 и router2. То есть на router2 также на интерфейсе enp0s8 выставить cost 1000. Для этого, необходимо в файле main.yml изменить значение переменной symmetric_routing с false на true. После этого необходимо запустить playbook, но с указание только тега - setup_ospf
    
-
 ```shell
 root@ansible:/home/vagrant/ansible# ansible-playbook ospf.yml -t setup_ospf
 
@@ -421,7 +420,7 @@ router1                    : ok=3    changed=2    unreachable=0    failed=0    s
 router2                    : ok=3    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 router3                    : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 ```    
-Playbook'и отработали без ошибок    
+Playbook'и отработал без ошибок    
 
 *router1*
 ```shell
@@ -472,8 +471,9 @@ PING 192.168.20.1 (192.168.20.1) from 192.168.10.1 : 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.662/0.827/0.918/0.117 ms
 ```   
 #### 4.2. На router2 запускаю tcpdump, который будет смотреть трафик только на порту enp0s9    
-Для этого опять запускаю ping с router 1 на router2    
+Для этого опять запускаю ping с router1 на router2    
 
+*router1*
 ```shell
 root@router1:~# ping 192.168.20.1
 PING 192.168.20.1 (192.168.20.1) 56(84) bytes of data.
