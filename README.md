@@ -135,7 +135,7 @@ router1                    : ok=11   changed=10   unreachable=0    failed=0    s
 router2                    : ok=11   changed=10   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 router3                    : ok=11   changed=10   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 ```    
-Playbook'и отработали без ошибок    
+Playbook'и отработал без ошибок    
 
    
 
